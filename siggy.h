@@ -5,27 +5,6 @@
 #include <windows.h>
 #include "pattern.h"
 
-/*
-* ======================== COUPLE IMPORTANT NOTES ABOUT SIGGY ========================
-* 
-* - PAGE_ANY_READABLE means that every readable page will be scanned, so:
-*   PAGE_EXECUTE_READ, PAGE_EXECUTE_READWRITE, PAGE_EXECUTE_WRITECOPY, PAGE_READONLY,
-*   PAGE_READWRITE, PAGE_WRITECOPY.
-* 
-* - Scan range is always [Min, Max].
-* 
-* - The Sgy::Pat namespace contains helper functions for generating patterns.
-* 
-* - The Sgy::Err namespace contains functions that return an error code if something
-*   goes wrong, the normal ones still use Sgy::Err functions under the hood.
-* 
-* - If a function succeeds but doesn't find any memory matching the pattern,
-*   the expected type will be returned but the size will be 0 (std::vector<void*>)
-*   or the pointer value will equal 0 (void*).
-* 
-* ====================================================================================
-*/
-
 namespace Sgy {
     constexpr inline std::size_t NO_LIMIT = 0;
     constexpr inline std::uint32_t PAGE_ANY_READABLE = 0;
