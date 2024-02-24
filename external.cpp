@@ -2,32 +2,6 @@
 #include <psapi.h>
 #include <tlhelp32.h>
 
-static std::expected<const std::vector<MEMORY_BASIC_INFORMATION>, sgy::ERROR_CODE> _GetMemoryRegions(
-    HANDLE Process,
-    std::uintptr_t Min,
-    std::uintptr_t Max
-) {
-
-}
-
-static std::string _ToLower(
-    const std::string_view _String
-) {
-    std::string _Result;
-    for (auto& e : _String)
-        _Result += std::tolower(e);
-    return _Result;
-}
-
-static std::wstring _ToLower(
-    const std::wstring_view _String
-) {
-    std::wstring _Result;
-    for (auto& e : _String)
-        _Result += std::tolower(e);
-    return _Result;
-}
-
 std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_ex(
     HANDLE Process,
     const std::vector<std::int16_t>& Pattern,
@@ -93,10 +67,8 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_ex(
             return _Results;
     }
 
-    if (_Results.empty())
-        return std::unexpected(ERROR_NO_RESULTS);
-    else
-        return _Results;
+    if (_Results.empty()) return std::unexpected(ERROR_NO_RESULTS);
+    else return _Results;
 }
 
 std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_module(
@@ -105,8 +77,8 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_module(
     const std::vector<std::int16_t>& Pattern,
     std::size_t Limit
 ) {
-    // I need to define this myself & use GetProcAddress for Module32First and Module32Next because
-    // tlhelp32.h overrides those with wide versions using macros when your project is set to unicode
+    // I need to define this myself & use GetProcAddress for ansi Module32First and Module32Next because
+    // tlhelp32.h overrides those with unicode versions using macros when your project is set to unicode
     struct MODULEENTRY32A {
         DWORD   dwSize;
         DWORD   th32ModuleID;
@@ -122,9 +94,16 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_module(
 
     static HMODULE _Kernel32 = GetModuleHandleA("kernel32.dll");
     if (!_Kernel32)
-        return std::unexpected(ERROR_BAD_MODULE);
+        return std::unexpected(ERROR_UNKNOWN);
     static auto Module32FirstA = reinterpret_cast<BOOL(WINAPI*)(HANDLE, MODULEENTRY32A*)>(GetProcAddress(_Kernel32, "Module32First"));
     static auto Module32NextA = reinterpret_cast<BOOL(WINAPI*)(HANDLE, MODULEENTRY32A*)>(GetProcAddress(_Kernel32, "Module32Next"));
+
+    auto _ToLower = [](const std::string_view _String) -> std::string {
+        std::string _Result;
+        for (auto& e : _String)
+            _Result += std::tolower(e);
+        return _Result;
+    };
 
     HANDLE _Snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetProcessId(Process));
     if (!_Snapshot || (_Snapshot == INVALID_HANDLE_VALUE))
@@ -162,10 +141,8 @@ std::expected<void*, sgy::ERROR_CODE> sgy::ex::scan_module_first(
     const std::vector<std::int16_t>& Pattern
 ) {
     auto _Result = scan_module(Process, Module, Pattern, 1);
-    if (_Result)
-        return _Result->front();
-    else
-        return std::unexpected(_Result.error());
+    if (_Result) return _Result->front();
+    else return std::unexpected(_Result.error());
 }
 
 std::expected<void*, sgy::ERROR_CODE> sgy::ex::scan_first(
@@ -174,8 +151,6 @@ std::expected<void*, sgy::ERROR_CODE> sgy::ex::scan_first(
     std::uint32_t Protection
 ) {
     auto _Result = scan(Process, Pattern, 1, Protection);
-    if (_Result)
-        return _Result->front();
-    else
-        return std::unexpected(_Result.error());
+    if (_Result) return _Result->front();
+    else return std::unexpected(_Result.error());
 }

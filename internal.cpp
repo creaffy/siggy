@@ -76,10 +76,8 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::in::scan_ex(
     }
 
 exit:
-    if (_Results.empty())
-        return std::unexpected(ERROR_NO_RESULTS);
-    else
-        return _Results;
+    if (_Results.empty()) return std::unexpected(ERROR_NO_RESULTS);
+    else return _Results;
 }
 
 std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::in::scan_module(
@@ -111,10 +109,8 @@ std::expected<void*, sgy::ERROR_CODE> sgy::in::scan_module_first(
     const std::vector<std::int16_t>& Pattern
 ) {
     auto _Result = scan_module(Module, Pattern, 1);
-    if (_Result) 
-        return _Result->front();
-    else 
-        return std::unexpected(_Result.error());
+    if (_Result) return _Result->front();
+    else return std::unexpected(_Result.error());
 }
 
 std::expected<void*, sgy::ERROR_CODE> sgy::in::scan_first(
@@ -122,8 +118,6 @@ std::expected<void*, sgy::ERROR_CODE> sgy::in::scan_first(
     std::uint32_t Protection
 ) {
     auto _Result = scan(Pattern, 1, Protection);
-    if (_Result)
-        return _Result->front();
-    else
-        return std::unexpected(_Result.error());
+    if (_Result) return _Result->front();
+    else return std::unexpected(_Result.error());
 }
