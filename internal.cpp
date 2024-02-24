@@ -1,3 +1,17 @@
+/*
+ *  Copyright (c) 2024 Creaffy.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+ *  to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #include "siggy.h"
 #include <psapi.h>
 
@@ -5,6 +19,7 @@ const std::string_view sgy::stringify_error(
     sgy::ERROR_CODE Error
 ) {
     switch (Error) {
+    case ERROR_NO_RESULTS: return "ERROR_NO_RESULTS";
     case ERROR_BAD_MODULE: return "ERROR_BAD_MODULE";
     case ERROR_BAD_PATTERN: return "ERROR_BAD_PATTERN";
     case ERROR_BAD_PROTECTION: return "ERROR_BAD_PROTECTION";
@@ -13,7 +28,6 @@ const std::string_view sgy::stringify_error(
     case ERROR_VQUERY_FAILED: return "ERROR_VQUERY_FAILED";
     case ERROR_RPM_FAILED: return "ERROR_RPM_FAILED";
     case ERROR_SNAPSHOT_FAILED: return "ERROR_SNAPSHOT_FAILED";
-    case ERROR_NO_RESULTS: return "ERROR_NO_RESULTS";
     default: return "ERROR_UNKNOWN";
     }
 }
