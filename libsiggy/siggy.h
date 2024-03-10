@@ -19,7 +19,7 @@
 #include <windows.h>
 #include "pattern.h"
 
-namespace sgy {
+namespace sig {
     constexpr inline std::size_t NO_LIMIT = 0;
     constexpr inline std::uint32_t PAGE_ANY_READABLE = (PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY | PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY);
 
@@ -46,10 +46,6 @@ namespace sgy {
         ERROR_UNKNOWN = 0xFF
     };
 
-    const std::string_view stringify_error(
-        ERROR_CODE Error
-    );
-
     // Internal Scanner
     namespace in {
         std::expected<const std::vector<void*>, ERROR_CODE> scan_ex(
@@ -60,7 +56,7 @@ namespace sgy {
             std::uint32_t Protection = PAGE_ANY_READABLE
         );
 
-        std::expected<const std::vector<void*>, ERROR_CODE> scan_module(
+        std::expected<const std::vector<void*>, ERROR_CODE> scan_image(
             const std::string_view Module,
             const std::vector<std::int16_t>& Pattern,
             std::size_t Limit = NO_LIMIT
@@ -72,7 +68,7 @@ namespace sgy {
             std::uint32_t Protection = PAGE_ANY_READABLE
         );
 
-        std::expected<void*, ERROR_CODE> scan_module_first(
+        std::expected<void*, ERROR_CODE> scan_image_first(
             const std::string_view Module,
             const std::vector<std::int16_t>& Pattern
         );
@@ -94,7 +90,7 @@ namespace sgy {
             std::uint32_t Protection = PAGE_ANY_READABLE
         );
 
-        std::expected<const std::vector<void*>, ERROR_CODE> scan_module(
+        std::expected<const std::vector<void*>, ERROR_CODE> scan_image(
             HANDLE Process,
             const std::string_view Module,
             const std::vector<std::int16_t>& Pattern,
@@ -108,7 +104,7 @@ namespace sgy {
             std::uint32_t Protection = PAGE_ANY_READABLE
         );
 
-        std::expected<void*, ERROR_CODE> scan_module_first(
+        std::expected<void*, ERROR_CODE> scan_image_first(
             HANDLE Process,
             const std::string_view Module,
             const std::vector<std::int16_t>& Pattern
@@ -119,5 +115,22 @@ namespace sgy {
             const std::vector<std::int16_t>& Pattern,
             std::uint32_t Protection = PAGE_ANY_READABLE
         );
+    }
+
+    constexpr const std::string_view stringify_error(
+        ERROR_CODE Error
+    ) noexcept {
+        switch (Error) {
+        case ERROR_NO_RESULTS: return "ERROR_NO_RESULTS";
+        case ERROR_BAD_MODULE: return "ERROR_BAD_MODULE";
+        case ERROR_BAD_PATTERN: return "ERROR_BAD_PATTERN";
+        case ERROR_BAD_PROTECTION: return "ERROR_BAD_PROTECTION";
+        case ERROR_BAD_PROCESS: return "ERROR_BAD_PROCESS";
+        case ERROR_BAD_RANGE: return "ERROR_BAD_RANGE";
+        case ERROR_VQUERY_FAILED: return "ERROR_VQUERY_FAILED";
+        case ERROR_RPM_FAILED: return "ERROR_RPM_FAILED";
+        case ERROR_SNAPSHOT_FAILED: return "ERROR_SNAPSHOT_FAILED";
+        default: return "ERROR_UNKNOWN";
+        }
     }
 }

@@ -15,31 +15,14 @@
 #include "siggy.h"
 #include <psapi.h>
 
-const std::string_view sgy::stringify_error(
-    sgy::ERROR_CODE Error
-) {
-    switch (Error) {
-    case ERROR_NO_RESULTS: return "ERROR_NO_RESULTS";
-    case ERROR_BAD_MODULE: return "ERROR_BAD_MODULE";
-    case ERROR_BAD_PATTERN: return "ERROR_BAD_PATTERN";
-    case ERROR_BAD_PROTECTION: return "ERROR_BAD_PROTECTION";
-    case ERROR_BAD_PROCESS: return "ERROR_BAD_PROCESS";
-    case ERROR_BAD_RANGE: return "ERROR_BAD_RANGE";
-    case ERROR_VQUERY_FAILED: return "ERROR_VQUERY_FAILED";
-    case ERROR_RPM_FAILED: return "ERROR_RPM_FAILED";
-    case ERROR_SNAPSHOT_FAILED: return "ERROR_SNAPSHOT_FAILED";
-    default: return "ERROR_UNKNOWN";
-    }
-}
-
-std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::in::scan_ex(
+std::expected<const std::vector<void*>, sig::ERROR_CODE> sig::in::scan_ex(
     const std::vector<std::int16_t>& Pattern,
     const void* Min,
     const void* Max,
     std::size_t Limit,
     std::uint32_t Protection
 ) {
-    for (const std::int16_t& e : Pattern) {
+    for (const std::int16_t e : Pattern) {
         if ((e < -1) || (e > 255))
             return std::unexpected(ERROR_BAD_PATTERN);
     }
@@ -47,12 +30,12 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::in::scan_ex(
     if ((Protection & PAGE_ANY_READABLE) == 0)
         return std::unexpected(ERROR_BAD_PROTECTION);
 
+    if (Min > Max)
+        return std::unexpected(ERROR_BAD_RANGE);
+
     std::vector<void*> _Results;
     const std::uintptr_t _Min = reinterpret_cast<std::uintptr_t>(Min);
     const std::uintptr_t _Max = reinterpret_cast<std::uintptr_t>(Max);
-
-    if (_Min > _Max)
-        return std::unexpected(ERROR_BAD_RANGE);
 
     std::vector<MEMORY_BASIC_INFORMATION> _Regions;
     MEMORY_BASIC_INFORMATION _MemoryInfo{};
@@ -94,7 +77,7 @@ exit:
     else return _Results;
 }
 
-std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::in::scan_module(
+std::expected<const std::vector<void*>, sig::ERROR_CODE> sig::in::scan_image(
     const std::string_view Module,
     const std::vector<std::int16_t>& Pattern,
     std::size_t Limit
@@ -108,7 +91,7 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::in::scan_module(
     return scan_ex(Pattern, _Module, reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(_Module) + _ModuleInfo.SizeOfImage), Limit);
 }
 
-std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::in::scan(
+std::expected<const std::vector<void*>, sig::ERROR_CODE> sig::in::scan(
     const std::vector<std::int16_t>& Pattern,
     std::size_t Limit,
     std::uint32_t Protection
@@ -118,16 +101,16 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::in::scan(
     return scan_ex(Pattern, _SystemInfo.lpMinimumApplicationAddress, _SystemInfo.lpMaximumApplicationAddress, Limit, Protection);
 }
 
-std::expected<void*, sgy::ERROR_CODE> sgy::in::scan_module_first(
+std::expected<void*, sig::ERROR_CODE> sig::in::scan_image_first(
     const std::string_view Module,
     const std::vector<std::int16_t>& Pattern
 ) {
-    auto _Result = scan_module(Module, Pattern, 1);
+    auto _Result = scan_image(Module, Pattern, 1);
     if (_Result) return _Result->front();
     else return std::unexpected(_Result.error());
 }
 
-std::expected<void*, sgy::ERROR_CODE> sgy::in::scan_first(
+std::expected<void*, sig::ERROR_CODE> sig::in::scan_first(
     const std::vector<std::int16_t>& Pattern,
     std::uint32_t Protection
 ) {

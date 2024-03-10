@@ -16,7 +16,7 @@
 #include <psapi.h>
 #include <tlhelp32.h>
 
-std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_ex(
+std::expected<const std::vector<void*>, sig::ERROR_CODE> sig::ex::scan_ex(
     HANDLE Process,
     const std::vector<std::int16_t>& Pattern,
     const void* Min,
@@ -45,7 +45,7 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_ex(
     MEMORY_BASIC_INFORMATION _MemoryInfo{};
     for (auto i = _Min; i <= _Max; i++) {
         if (!VirtualQueryEx(Process, reinterpret_cast<void*>(i), &_MemoryInfo, sizeof(_MemoryInfo)))
-            return std::unexpected(sgy::ERROR_VQUERY_FAILED);
+            return std::unexpected(sig::ERROR_VQUERY_FAILED);
         _Regions.push_back(_MemoryInfo);
         i += _MemoryInfo.RegionSize;
     }
@@ -85,7 +85,7 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_ex(
     else return _Results;
 }
 
-std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_module(
+std::expected<const std::vector<void*>, sig::ERROR_CODE> sig::ex::scan_image(
     HANDLE Process,
     const std::string_view Module,
     const std::vector<std::int16_t>& Pattern,
@@ -138,7 +138,7 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan_module(
     return std::unexpected(ERROR_BAD_MODULE);
 }
 
-std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan(
+std::expected<const std::vector<void*>, sig::ERROR_CODE> sig::ex::scan(
     HANDLE Process,
     const std::vector<std::int16_t>& Pattern,
     std::size_t Limit,
@@ -149,17 +149,17 @@ std::expected<const std::vector<void*>, sgy::ERROR_CODE> sgy::ex::scan(
     return scan_ex(Process, Pattern, _SystemInfo.lpMinimumApplicationAddress, _SystemInfo.lpMaximumApplicationAddress, Limit, Protection);
 }
 
-std::expected<void*, sgy::ERROR_CODE> sgy::ex::scan_module_first(
+std::expected<void*, sig::ERROR_CODE> sig::ex::scan_image_first(
     HANDLE Process,
     const std::string_view Module,
     const std::vector<std::int16_t>& Pattern
 ) {
-    auto _Result = scan_module(Process, Module, Pattern, 1);
+    auto _Result = scan_image(Process, Module, Pattern, 1);
     if (_Result) return _Result->front();
     else return std::unexpected(_Result.error());
 }
 
-std::expected<void*, sgy::ERROR_CODE> sgy::ex::scan_first(
+std::expected<void*, sig::ERROR_CODE> sig::ex::scan_first(
     HANDLE Process,
     const std::vector<std::int16_t>& Pattern,
     std::uint32_t Protection

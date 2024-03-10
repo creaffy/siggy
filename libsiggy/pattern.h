@@ -17,22 +17,22 @@
 #include <string>
 #include <ranges>
 
-namespace sgy::pat {
-    // Format: "55 56 48 83 EC ? 48 8D 6C 24 ? 48 89 CE E8"
-    constexpr std::vector<std::int16_t> ida(const std::string_view Pattern) {
+namespace sig::pat {
+    // Format: "55 56 48 83 EC ? 48 8D 6C 24 ? 48 89 CE E8" (base 16)
+    constexpr std::vector<std::int16_t> ida(const std::string_view Pattern, std::uint32_t Base = 16) {
         std::vector<std::int16_t> _Pattern;
         for (auto _Token : std::ranges::split_view(Pattern, ' '))
-            _Pattern.push_back(std::string_view(_Token) == "?" ? -1 : std::stoi(_Token.data(), 0, 16));
+            _Pattern.push_back(std::string_view(_Token) == "?" ? -1 : std::stoi(_Token.data(), 0, Base));
         while (_Pattern.back() == -1)
             _Pattern.pop_back();
         return _Pattern;
     }
 
-    // Format: "55 56 48 83 EC ?? 48 8D 6C 24 ?? 48 89 CE E8"
-    constexpr std::vector<std::int16_t> x64dbg(const std::string_view Pattern) {
+    // Format: "55 56 48 83 EC ?? 48 8D 6C 24 ?? 48 89 CE E8" (base 16)
+    constexpr std::vector<std::int16_t> x64dbg(const std::string_view Pattern, std::uint32_t Base = 16) {
         std::vector<std::int16_t> _Pattern;
         for (auto _Token : std::ranges::split_view(Pattern, ' '))
-            _Pattern.push_back(std::string_view(_Token) == "??" ? -1 : std::stoi(_Token.data(), 0, 16));
+            _Pattern.push_back(std::string_view(_Token) == "??" ? -1 : std::stoi(_Token.data(), 0, Base));
         while (_Pattern.back() == -1)
             _Pattern.pop_back();
         return _Pattern;
